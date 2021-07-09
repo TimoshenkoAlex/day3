@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <math.h>
 #include <iomanip>
 
@@ -87,7 +87,56 @@ void print(DataList* ls)
     }
 }
 
+bool testSimulate()
+{
+    double maxSy = 0;
+    double minSy = 100;
+    double deltaT = 0.01;
+    double Uy = 20;
+    double Sy = 0;
+    double Ux = 3;
+    double Sx = 0;
+    DataList* outLs = simulate(Ux, Sx, Uy, Sy, deltaT);
+    while ((*outLs).next != NULL) {
+        if ((*outLs).Sy > maxSy) {
+            maxSy = (*outLs).Sy;
+        }
+        if ((*outLs).Sy < minSy) {
+            minSy = (*outLs).Sy;
+        }
+        if ((*outLs).Ux != Ux) { // ãîðèçîíòàëüíàÿ ñîñòîâëÿþùàÿ ïîñòîÿííà
+            return false;
+        }
+        outLs = (*outLs).next;
+    }
+    //cout << maxSy << "\t" << Uy*Uy/2/g - 0.02  << "\t" << Uy*Uy/2/g + 0.02<< endl;
+    //cout << minSy << endl;
+    if ((maxSy < (Uy * Uy / 2 / g - 0.2)) || (maxSy > (Uy * Uy / 2 / g + 0.2))) { // äîëåòåë äî òåîðåòè÷åñêîãî ìàêñèìóìà
+        return false;
+    }
+    if ((minSy > 0.2) || (minSy < -0.2)) { // óäàð îá çåìëþ
+        return false;
+    }
+    if ((*outLs).Sx != (*outLs).t * Ux) { // ïðîâåðêà íà äàëüíîñòü ïîë¸òà
+        return false;
+    }
+
+    return true;
+}
+
+void runTest(bool (*testFunction)(), const string& testName)
+{
+    if (testFunction() == true)
+        std::cout << "Test " << testName << " - OK" << std::endl;
+    else
+        std::cout << "Test " << testName << " - FAIL" << std::endl;
+}
+
 
 int main() {
+    runTest(testSimulate, "Simulation");
+    //DataList* dl = simulate(3, 0, 20, 0, 0.01);
+    //print(dl);
+
     return 0;
 }
